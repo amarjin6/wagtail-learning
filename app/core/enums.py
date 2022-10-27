@@ -1,4 +1,5 @@
 from enum import Enum
+import datetime
 
 
 class Gender(Enum):
@@ -84,6 +85,29 @@ class Category(Enum):
     SCIENTIFIC_RESEARCH = 'Scientific - research'
     TEACHING_EDUCATIONAL = 'Teaching - educational'
     MIXED = 'Mixed'
+
+    @classmethod
+    def choices(cls):
+        return [(attr.name, attr.value) for attr in cls]
+
+    def __str__(self):
+        return self.value
+
+
+def year_choices():
+    return [(r, r) for r in range(1984, datetime.date.today().year + 1)]
+
+
+def current_year():
+    return datetime.date.today().year
+
+
+class PublicationType(Enum):
+    DEFAULT = 'choose publication type'
+    NEWSPAPER = 'newspaper'
+    BOOK = 'book'
+    ARTICLE = 'article'
+    INTERNET = 'internet'
 
     @classmethod
     def choices(cls):

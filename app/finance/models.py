@@ -1,9 +1,8 @@
 from django.db import models
 
-from wagtail.snippets.models import register_snippet
+from wagtail.models import ParentalKey
 
 
-@register_snippet
 class Finance(models.Model):
     grants = models.FloatField(
         null=True,
@@ -32,5 +31,15 @@ class Finance(models.Model):
         default=.0,
     )
 
+    project = ParentalKey(
+        'fktprojects.ProjectPage',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='finance_project')
+
     def __str__(self):
         return self.id
+
+    class Meta:
+        verbose_name = 'Finance'
+        verbose_name_plural = 'Finances'

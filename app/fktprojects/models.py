@@ -1,10 +1,12 @@
 from django.db import models
 
 from wagtail.models import Page, ClusterableModel
-from wagtail.admin.edit_handlers import MultiFieldPanel, FieldPanel
-from wagtail.snippets.models import register_snippet
+from wagtail.admin.edit_handlers import MultiFieldPanel, FieldPanel, InlinePanel
+from wagtail.admin.panels import TabbedInterface, ObjectList
 
-from core.enums import Status, Palette, Category, year_choices, current_year, PublicationType
+from core.enums import Status, Palette, Category
+from fktprojects.abstract import Abstract
+from fktprojects.publication import Publication
 
 
 class FKTPage(Page):
@@ -12,8 +14,16 @@ class FKTPage(Page):
         'fktprojects.ProjectPage',
     ]
 
+    max_count = 1
+
+    class Meta:
+        verbose_name = 'FKT Project'
+        verbose_name_plural = 'FKT Projects'
+
 
 class ProjectPage(Page):
+    parent_page_types = ['fktprojects.FKTPage']
+
     status = models.CharField(
         max_length=10,
         choices=Status.choices(),
@@ -26,13 +36,6 @@ class ProjectPage(Page):
         default=Palette.RED.name,
         null=True,
         max_length=5,
-    )
-
-    financing_source = models.ForeignKey(
-        'finance.Finance',
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name='page_financing_source',
     )
 
     university = models.ForeignKey(
@@ -67,6 +70,7 @@ class ProjectPage(Page):
 
     project_start_date = models.DateField(
         null=True,
+        blank=True,
     )
 
     project_end_date = models.DateField(
@@ -84,136 +88,63 @@ class ProjectPage(Page):
         max_length=22,
     )
 
-    content_panels = Page.content_panels + [
+    content_panels = []
+    promote_panels = []
+    settings_panels = []
+
+    base_data = [
         MultiFieldPanel(
             [
-                FieldPanel('status'),
-                FieldPanel('marker'),
-                FieldPanel('financing_source'),
+                MultiFieldPanel(
+                    [
+                        InlinePanel('finance_project'),
+                    ], heading='Finance',
+                ),
                 FieldPanel('university'),
                 FieldPanel('user'),
                 FieldPanel('heading'),
                 FieldPanel('image'),
-                FieldPanel('project_number'),
-                FieldPanel('project_start_date'),
-                FieldPanel('project_end_date'),
                 FieldPanel('text'),
-                FieldPanel('category'),
             ],
             heading='Project'
         )
     ]
 
+    characteristics = [
+        FieldPanel('status'),
+        FieldPanel('marker'),
+        FieldPanel('project_number'),
+        FieldPanel('project_start_date'),
+        FieldPanel('project_end_date'),
+    ]
+
+    abstract = [
+        MultiFieldPanel(
+            [
+                InlinePanel('abstract_project', max_num=5)
+            ], heading='Abstracts',
+        )
+    ]
+
+    publication = [
+        MultiFieldPanel(
+            [
+                InlinePanel('publication_project', max_num=10)
+            ], heading='Publications',
+        )
+    ]
+
+    edit_handler = TabbedInterface([
+        ObjectList(base_data, heading='Base data'),
+        ObjectList(characteristics, heading='Characteristics'),
+        ObjectList(abstract, heading='Abstracts'),
+        ObjectList(publication, heading='Publications')
+    ]
+    )
+
     def __str__(self):
         return self.title
 
-
-@register_snippet
-class Abstract(ClusterableModel):
-    text = models.TextField(
-        null=True,
-    )
-
-    category = models.CharField(
-        choices=Category.choices(),
-        default=Category.DEFAULT.name,
-        null=True,
-        max_length=22,
-    )
-
-    research_year = models.IntegerField(('year'), choices=year_choices(), default=current_year)
-
-    content_panels = Page.content_panels + [
-        MultiFieldPanel([
-            FieldPanel('text'),
-            FieldPanel('category'),
-            FieldPanel('research_year'),
-        ], heading='Abstract'),
-    ]
-
-    def __str__(self):
-        return self.text
-
-
-@register_snippet
-class Publications(ClusterableModel):
-    abstract = models.ForeignKey(
-        'fktprojects.Abstract',
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name='publications_abstract',
-    )
-
-    publication_type = models.CharField(
-        choices=PublicationType.choices(),
-        default=PublicationType.DEFAULT.name,
-        null=True,
-        max_length=22,
-    )
-
-    year = models.IntegerField(('year'), choices=year_choices(), default=current_year)
-
-    author = models.CharField(
-        max_length=64,
-        null=True,
-    )
-
-    post_title = models.CharField(
-        max_length=255,
-        null=True,
-    )
-
-    post_subtitle = models.CharField(
-        max_length=255,
-        null=True,
-    )
-
-    publication_date = models.DateTimeField(
-        null=True,
-    )
-
-    page_number = models.IntegerField(
-        null=True,
-    )
-
-    magazine = models.CharField(
-        max_length=100,
-        null=True,
-    )
-
-    publishing_house = models.CharField(
-        max_length=100,
-        null=True,
-    )
-
-    book_title = models.CharField(
-        max_length=100,
-        null=True,
-    )
-
-    publication_link = models.URLField(
-        null=True,
-    )
-
-    content_panels = Page.content_panels + [
-        MultiFieldPanel([
-            FieldPanel('abstract'),
-            FieldPanel('publication_type'),
-            FieldPanel('year'),
-
-            FieldPanel('author'),
-            FieldPanel('post_title'),
-            FieldPanel('post_subtitle'),
-            FieldPanel('publication_date'),
-
-            FieldPanel('page_number'),
-            FieldPanel('magazine'),
-            FieldPanel('publishing_house'),
-            FieldPanel('book_title'),
-            FieldPanel('publication_link'),
-
-        ], heading='Publications'),
-    ]
-
-    def __str__(self):
-        return self.post_title
+    class Meta:
+        verbose_name = 'Project Page'
+        verbose_name_plural = 'Project Pages'

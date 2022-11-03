@@ -1,7 +1,7 @@
 from django.db import models
 
 from wagtail.models import ClusterableModel, Orderable, ParentalKey
-from wagtail.admin.edit_handlers import MultiFieldPanel, FieldPanel
+from wagtail.admin.edit_handlers import FieldPanel
 
 from core.enums import year_choices, current_year, Category
 

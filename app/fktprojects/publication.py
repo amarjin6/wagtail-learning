@@ -1,16 +1,20 @@
 from django.db import models
 
 from wagtail.models import ClusterableModel, Orderable, ParentalKey
-from wagtail.admin.edit_handlers import MultiFieldPanel, FieldPanel
+from wagtail.admin.edit_handlers import FieldPanel
+from modelcluster.fields import ParentalManyToManyField
+from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 from core.enums import year_choices, current_year, PublicationType
 from fktprojects.abstract import Abstract
+from user.models import User
 
 
 class Publication(ClusterableModel, Orderable):
     abstract = ParentalKey(
         Abstract,
         null=True,
+        blank=True,
         related_name='publication_abstract',
     )
 
@@ -23,9 +27,10 @@ class Publication(ClusterableModel, Orderable):
 
     year = models.IntegerField('year', choices=year_choices(), default=current_year)
 
-    author = models.CharField(
-        max_length=64,
-        null=True,
+    authors = ParentalManyToManyField(
+        User,
+        blank=True,
+        related_name='publication_authors',
     )
 
     post_title = models.CharField(
@@ -75,7 +80,7 @@ class Publication(ClusterableModel, Orderable):
         FieldPanel('abstract'),
         FieldPanel('publication_type'),
         FieldPanel('year'),
-        FieldPanel('author'),
+        AutocompletePanel('authors', target_model=User),
         FieldPanel('post_title'),
         FieldPanel('post_subtitle'),
         FieldPanel('publication_date'),

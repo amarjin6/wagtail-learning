@@ -8,6 +8,7 @@ from wagtail.admin.panels import TabbedInterface, ObjectList
 from core.enums import Status, Palette, Category
 from fktprojects.abstract import Abstract
 from fktprojects.publication import Publication
+from university.widgets import UniversityChooser
 
 
 class FKTPage(Page):
@@ -48,6 +49,7 @@ class ProjectPage(Page):
     university = models.ForeignKey(
         'university.University',
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name='page_university',
     )
@@ -82,7 +84,6 @@ class ProjectPage(Page):
 
     project_start_date = models.DateField(
         null=True,
-        blank=True,
     )
 
     project_end_date = models.DateField(
@@ -115,7 +116,7 @@ class ProjectPage(Page):
                 InlinePanel('finance_project'),
             ], heading='Finance',
         ),
-        FieldPanel('university'),
+        FieldPanel('university', widget=UniversityChooser, help_text='Choose university from the list above.'),
         FieldPanel('user'),
         FieldPanel('heading'),
         FieldPanel('image'),
@@ -134,7 +135,7 @@ class ProjectPage(Page):
         HelpPanel(template='fktprojects/download_file.html', heading='PDF'),
         MultiFieldPanel(
             [
-                InlinePanel('abstract_project', max_num=5)
+                InlinePanel('abstract_project', max_num=5),
             ], heading='Abstracts',
         )
     ]
@@ -142,7 +143,7 @@ class ProjectPage(Page):
     publication = [
         MultiFieldPanel(
             [
-                InlinePanel('publication_project', max_num=10)
+                InlinePanel('publication_project', max_num=10),
             ], heading='Publications',
         )
     ]
@@ -152,7 +153,7 @@ class ProjectPage(Page):
             ObjectList(base_data, heading='Base data'),
             ObjectList(characteristics, heading='Characteristics'),
             ObjectList(abstract, heading='Abstracts'),
-            ObjectList(publication, heading='Publications')
+            ObjectList(publication, heading='Publications'),
         ]
     )
 

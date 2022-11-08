@@ -60,6 +60,11 @@ class User(AbstractUser):
         null=True,
     )
 
+    autocomplete_search_field = 'username'
+
+    def autocomplete_label(self):
+        return self.username
+
     def __str__(self):
         return self.username
 

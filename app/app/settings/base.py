@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "wagtailautocomplete",
+    "generic_chooser",
 ]
 
 MIDDLEWARE = [
@@ -127,7 +128,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static documents (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATICFILES_FINDERS = [

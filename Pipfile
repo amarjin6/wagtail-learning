@@ -8,6 +8,7 @@ wagtail = ">=4.0,<4.1"
 django = ">=4.1,<4.2"
 djangorestframework = "*"
 wagtail-autocomplete = "*"
+wagtail-generic-chooser = "*"
 
 [dev-packages]
 
